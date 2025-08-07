@@ -1,0 +1,30 @@
+{
+    "frame": {
+      "name": "Swipecaster",
+      "version": "1",
+      "iconUrl": "https://miniapp-sepia.vercel.app/icon.png",
+      "homeUrl": "https://miniapp-sepia.vercel.app",
+      "imageUrl": "https://miniapp-sepia.vercel.app/image.png",
+      "buttonTitle": "Open Swipecaster",
+      "splashImageUrl": "https://miniapp-sepia.vercel.app/splash.png",
+      "splashBackgroundColor": "#855DCD",
+      "webhookUrl": "https://miniapp-sepia.vercel.app/api/webhook",
+      "subtitle": "Swipe and discover users!",
+      "description": "Connect with your mutuals on Farcaster. ",
+      "primaryCategory": "social",
+      "tags": [
+        "social",
+        "discoverability",
+        "community"
+      ],
+      "tagline": "Discover and vibe!",
+      "ogTitle": "Discover and vibe!",
+      "ogDescription": "Discover and vibe with your farcaster oomfs!",
+      "ogImageUrl": "https://miniapp-sepia.vercel.app/icon.png"
+    },
+    "accountAssociation": {
+      "header": "",
+      "payload": "",
+      "signature": ""
+    }
+  }

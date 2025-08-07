@@ -1,6 +1,8 @@
 // hello
+
 import { useState, useEffect } from 'react'
 import './App.css'
+import sdk from '@farcaster/miniapp-sdk'
 
 // Types for Farcaster user data
 interface FarcasterUser {
@@ -80,7 +82,17 @@ function App() {
   useEffect(() => {
     fetchUsers()
   }, [])
+  const [loaded, setLoaded] = useState(false);
 
+  useEffect(() => {
+    if (!loaded) {
+      setLoaded(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (loaded) sdk.actions.ready();
+  }, [loaded]);
   const handleSwipe = (direction: 'left' | 'right') => {
     if (direction === 'right') {
       // Show modal for heart action

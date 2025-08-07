@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import './App.css'
 
 // Types for Farcaster user data
@@ -12,49 +12,71 @@ interface FarcasterUser {
   following: string
 }
 
-// Placeholder data
-const mockUsers: FarcasterUser[] = [
-  {
-    id: '1',
-    displayName: 'Naina',
-    username: '@naina',
-    bio: 'Building the future of social media on Farcaster. Love exploring new protocols and meeting amazing people in the space!',
-    profilePicture: 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face',
-    followers: '1.2K',
-    following: '890'
-  },
-  {
-    id: '2',
-    displayName: 'Alex Chen',
-    username: '@alexchen',
-    bio: 'Web3 developer and crypto enthusiast. Building decentralized applications and exploring the future of the internet.',
-    profilePicture: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face',
-    followers: '3.4K',
-    following: '1.2K'
-  },
-  {
-    id: '3',
-    displayName: 'Sarah Kim',
-    username: '@sarahkim',
-    bio: 'Designer and artist. Creating beautiful experiences in the digital world. Always learning and growing.',
-    profilePicture: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=150&h=150&fit=crop&crop=face',
-    followers: '2.1K',
-    following: '567'
-  },
-  {
-    id: '4',
-    displayName: 'Mike Johnson',
-    username: '@mikejohnson',
-    bio: 'Product manager and startup founder. Passionate about building products that make a difference in people\'s lives.',
-    profilePicture: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=150&h=150&fit=crop&crop=face',
-    followers: '5.6K',
-    following: '2.3K'
+// API Key - replace with your actual API key
+const API_KEY = '6E39A0C6-29C7-4835-8A32-EEC773059A6F'
+
+// Transform API response to match our interface
+const transformApiUser = (apiUser: any): FarcasterUser => {
+  const user = apiUser.user
+  return {
+    id: user.fid.toString(),
+    displayName: user.display_name || 'Anonymous',
+    username: `@${user.username}`,
+    bio: user.profile?.bio?.text || 'No bio available',
+    profilePicture: user.pfp_url || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face',
+    followers: user.follower_count ? user.follower_count.toLocaleString() : '0',
+    following: user.following_count ? user.following_count.toLocaleString() : '0'
   }
-]
+}
 
 function App() {
   const [currentUserIndex, setCurrentUserIndex] = useState(0)
-  const [users, setUsers] = useState<FarcasterUser[]>(mockUsers)
+  const [users, setUsers] = useState<FarcasterUser[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+
+  // Fetch users from API
+  const fetchUsers = async () => {
+    setLoading(true)
+    setError(null)
+    
+    try {
+      const url = 'https://api.neynar.com/v2/farcaster/followers/reciprocal/?fid=3'
+      const options = {
+        method: 'GET', 
+        headers: {
+          'x-api-key': API_KEY
+        }
+      }
+
+      const response = await fetch(url, options)
+      
+      if (!response.ok) {
+        throw new Error(`API request failed: ${response.status}`)
+      }
+      
+      const data = await response.json()
+      
+      if (data.users && Array.isArray(data.users)) {
+        const transformedUsers = data.users.map(transformApiUser)
+        setUsers(transformedUsers)
+      } else {
+        setUsers([])
+      }
+    } catch (error) {
+      console.error('Error fetching users:', error)
+      setError('Failed to load users. Please try again later.')
+      // Fallback to empty array
+      setUsers([])
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  // Fetch users on component mount
+  useEffect(() => {
+    fetchUsers()
+  }, [])
 
   const handleSwipe = (direction: 'left' | 'right') => {
     // For now, just move to next user
@@ -64,9 +86,53 @@ function App() {
     }
   }
 
-  const currentUser = users[currentUserIndex]
+  // Loading state
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⏳</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Loading users...</h2>
+          <p className="text-gray-600">Fetching profiles from Farcaster</p>
+        </div>
+      </div>
+    )
+  }
 
-  if (users.length === 0 || currentUserIndex >= users.length) {
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Oops! Something went wrong</h2>
+          <p className="text-gray-600 mb-4">{error}</p>
+          <button 
+            onClick={fetchUsers}
+            className="px-6 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // No users state
+  if (users.length === 0) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">
+        <div className="text-center">
+          <div className="text-6xl mb-4">😔</div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">No users found</h2>
+          <p className="text-gray-600">No reciprocal followers available at the moment.</p>
+        </div>
+      </div>
+    )
+  }
+
+  // End of users state
+  if (currentUserIndex >= users.length) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">
         <div className="text-center">
@@ -77,6 +143,8 @@ function App() {
       </div>
     )
   }
+
+  const currentUser = users[currentUserIndex]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 to-pink-50 flex items-center justify-center p-4">

@@ -4,7 +4,7 @@
       "version": "1",
       "iconUrl": "https://miniapp-sepia.vercel.app/icon.png",
       "homeUrl": "https://miniapp-sepia.vercel.app",
-      "imageUrl": "https://miniapp-sepia.vercel.app/image.png",
+      "imageUrl": "https://miniapp-sepia.vercel.app/header.png",
       "buttonTitle": "Open Swipecaster",
       "splashImageUrl": "https://miniapp-sepia.vercel.app/splash.png",
       "splashBackgroundColor": "#855DCD",

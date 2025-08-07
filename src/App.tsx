@@ -34,6 +34,8 @@ function App() {
   const [users, setUsers] = useState<FarcasterUser[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [showModal, setShowModal] = useState(false)
+  const [likedUser, setLikedUser] = useState<FarcasterUser | null>(null)
 
   // Fetch users from API
   const fetchUsers = async () => {
@@ -79,11 +81,76 @@ function App() {
   }, [])
 
   const handleSwipe = (direction: 'left' | 'right') => {
-    // For now, just move to next user
-    // Later this can be integrated with actual swipe logic
+    if (direction === 'right') {
+      // Show modal for heart action
+      setLikedUser(users[currentUserIndex])
+      setShowModal(true)
+    }
+    
+    // Move to next user
     if (currentUserIndex < users.length - 1) {
       setCurrentUserIndex(currentUserIndex + 1)
     }
+  }
+
+  const handleCloseModal = () => {
+    setShowModal(false)
+    setLikedUser(null)
+  }
+
+  const handleVisitProfile = () => {
+    if (likedUser) {
+      // Extract username without @ symbol
+      const username = likedUser.username.replace('@', '')
+      const farcasterUrl = `https://warpcast.com/${username}`
+      window.open(farcasterUrl, '_blank')
+    }
+    handleCloseModal()
+  }
+
+  // Modal component
+  const Modal = () => {
+    if (!showModal || !likedUser) return null
+
+    return (
+      <div 
+        className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50"
+        onClick={handleCloseModal}
+      >
+        <div 
+          className="bg-white rounded-2xl p-6 max-w-sm w-full mx-4 shadow-xl"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="text-center">
+            {/* Heart icon */}
+            <div className="text-6xl mb-4">💖</div>
+            
+            <h2 className="text-2xl font-bold text-gray-900 mb-2">
+              You liked {likedUser.displayName}!
+            </h2>
+            
+            <p className="text-gray-600 mb-6">
+              Want to see more from {likedUser.username}? Visit their Farcaster profile to follow them and see their latest posts.
+            </p>
+            
+            <div className="flex space-x-3">
+              <button
+                onClick={handleCloseModal}
+                className="flex-1 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+              >
+                Maybe Later
+              </button>
+              <button
+                onClick={handleVisitProfile}
+                className="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition-colors"
+              >
+                Visit Profile
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   // Loading state
@@ -228,6 +295,7 @@ function App() {
           </div>
         </div> */}
       </div>
+      <Modal />
     </div>
   )
 }

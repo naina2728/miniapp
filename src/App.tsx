@@ -41,7 +41,7 @@ function App() {
     setError(null)
     
     try {
-      const url = 'https://api.neynar.com/v2/farcaster/followers/reciprocal/?fid=3'
+      const url = 'https://api.neynar.com/v2/farcaster/followers/reciprocal/?fid=3&limit=80'
       const options = {
         method: 'GET', 
         headers: {
@@ -215,7 +215,7 @@ function App() {
         </div>
 
         {/* Progress indicator */}
-        <div className="flex justify-center mt-4">
+        {/* <div className="flex justify-center mt-4">
           <div className="flex space-x-1">
             {users.map((_, index) => (
               <div
@@ -226,7 +226,7 @@ function App() {
               />
             ))}
           </div>
-        </div>
+        </div> */}
       </div>
     </div>
   )

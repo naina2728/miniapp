@@ -164,7 +164,7 @@ function App() {
         </div>
       </div>
     )
-  }
+  } 
 
   // Loading state
   if (loading) {
